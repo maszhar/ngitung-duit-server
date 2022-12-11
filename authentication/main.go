@@ -8,10 +8,17 @@ import (
 
 	"github.com/djeniusinvfest/inventora/auth/handler"
 	pb "github.com/djeniusinvfest/inventora/auth/proto"
+	"github.com/joho/godotenv"
 	"google.golang.org/grpc"
 )
 
 func main() {
+	errorLog := log.New(os.Stderr, "", log.LstdFlags|log.Lshortfile)
+	err := godotenv.Load()
+	if err != nil {
+		errorLog.Printf("No .env file. Using system environment")
+	}
+
 	port := os.Getenv("PORT")
 	if port == "" {
 		port = "8000"
