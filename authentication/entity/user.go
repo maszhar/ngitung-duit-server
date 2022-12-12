@@ -1,10 +1,9 @@
-package model
+package entity
 
-import (
-	"time"
-)
+import "time"
 
 type User struct {
+	Id          string     `bson:"_id,omitempty"`
 	Username    *string    `bson:"username"`
 	Firstname   string     `bson:"first_name"`
 	Lastname    string     `bson:"last_name"`

@@ -8,6 +8,7 @@ import (
 	"os"
 
 	"github.com/djeniusinvfest/inventora/auth/handler"
+	"github.com/djeniusinvfest/inventora/auth/model"
 	pb "github.com/djeniusinvfest/inventora/auth/proto"
 	"github.com/djeniusinvfest/inventora/auth/repository"
 	"github.com/joho/godotenv"
@@ -39,8 +40,11 @@ func main() {
 	}
 	db := dbClient.Database("auth")
 
-	// Setup repositories
-	authRepo := repository.NewAuthRepo(db)
+	// Init models
+	userModel := model.NewUserModel(db)
+
+	// Init repositories
+	authRepo := repository.NewAuthRepo(userModel)
 
 	listener, err := net.Listen("tcp", fmt.Sprintf("[::]:%s", port))
 	if err != nil {
