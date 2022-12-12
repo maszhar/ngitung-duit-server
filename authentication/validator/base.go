@@ -1,14 +1,13 @@
 package validator
 
 import (
-	"errors"
 	"fmt"
 	"strings"
 )
 
 func validateNotBlank(entity string, value string) error {
 	if len(value) == 0 {
-		return errors.New(fmt.Sprintf("validator: %s cannot be blank", entity))
+		return fmt.Errorf("validator: %s cannot be blank", entity)
 	}
 	return nil
 }
