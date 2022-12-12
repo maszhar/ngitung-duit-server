@@ -8,7 +8,7 @@ import (
 )
 
 func TestHello(t *testing.T) {
-	s := NewHandler()
+	s := NewHandler(nil)
 	wantedResp := "authentication server is running"
 
 	req := &pb.HelloRequest{}
