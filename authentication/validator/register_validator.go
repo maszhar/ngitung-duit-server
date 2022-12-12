@@ -29,6 +29,15 @@ func ValidateRegister(in *pb.RegisterRequest) error {
 		return err
 	}
 
+	err = validateNotBlank("password", in.Password)
+	if err != nil {
+		return err
+	}
+
+	if len(in.Password) < 6 {
+		return errors.New("validator: password length must be at least 6 characters")
+	}
+
 	if !in.AgreeTos {
 		return errors.New("validator: agree_tos must be accepted")
 	}
