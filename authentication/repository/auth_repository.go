@@ -10,7 +10,7 @@ import (
 )
 
 type AuthRepository struct {
-	userModel *model.UserModel
+	userModel model.UserModel
 }
 
 var ErrEmailConflict = errors.New(("auth repo: email is used by another user"))
@@ -31,9 +31,9 @@ func (r *AuthRepository) RegisterUser(p *pb.RegisterRequest) error {
 		Email:     p.Email,
 		Password:  p.Password,
 	}
-	r.userModel.Create(&user)
+	err = r.userModel.Create(&user)
 
-	return nil
+	return err
 }
 
 func (r *AuthRepository) FindUserByEmail(email string) (*entity.User, error) {
@@ -47,7 +47,7 @@ func (r *AuthRepository) FindUserByEmail(email string) (*entity.User, error) {
 	return user, nil
 }
 
-func NewAuthRepo(um *model.UserModel) *AuthRepository {
+func NewAuthRepo(um model.UserModel) *AuthRepository {
 	return &AuthRepository{
 		userModel: um,
 	}

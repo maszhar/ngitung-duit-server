@@ -11,11 +11,16 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
-type UserModel struct {
+type UserModel interface {
+	Create(user *entity.User) error
+	FindOneWithDeleted(filter interface{}) (*entity.User, error)
+}
+
+type userModel struct {
 	coll *mongo.Collection
 }
 
-func (um *UserModel) Create(user *entity.User) error {
+func (um *userModel) Create(user *entity.User) error {
 	now := time.Now()
 	user.CreatedAt = now
 	user.UpdatedAt = now
@@ -36,7 +41,7 @@ func (um *UserModel) Create(user *entity.User) error {
 	return nil
 }
 
-func (um *UserModel) FindOneWithDeleted(filter interface{}) (*entity.User, error) {
+func (um *userModel) FindOneWithDeleted(filter interface{}) (*entity.User, error) {
 	var result entity.User
 	err := um.coll.FindOne(context.Background(), filter).Decode(&result)
 	if err != nil {
@@ -49,7 +54,7 @@ func (um *UserModel) FindOneWithDeleted(filter interface{}) (*entity.User, error
 	return &result, nil
 }
 
-func (um *UserModel) defineIndexes() {
+func (um *userModel) defineIndexes() {
 	// email unique
 	indexModel := mongo.IndexModel{
 		Keys:    bson.D{{"email", 1}},
@@ -61,8 +66,8 @@ func (um *UserModel) defineIndexes() {
 	}
 }
 
-func NewUserModel(db *mongo.Database) *UserModel {
-	user := &UserModel{
+func NewUserModel(db *mongo.Database) UserModel {
+	user := &userModel{
 		coll: db.Collection("user"),
 	}
 
