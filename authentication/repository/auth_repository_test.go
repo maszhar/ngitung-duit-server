@@ -5,25 +5,23 @@ import (
 
 	"github.com/djeniusinvfest/inventora/auth/entity"
 	"github.com/djeniusinvfest/inventora/auth/model/mock_model"
-	pb "github.com/djeniusinvfest/inventora/auth/proto"
 	"github.com/djeniusinvfest/inventora/auth/repository"
 	"github.com/golang/mock/gomock"
 	"github.com/jaswdr/faker"
 )
 
-func generateRegisterRequest() *pb.RegisterRequest {
+func generateUserEntity() *entity.User {
 	faker := faker.New()
-	return &pb.RegisterRequest{
-		FirstName: faker.Person().FirstName(),
-		LastName:  faker.Person().LastName(),
+	return &entity.User{
+		Firstname: faker.Person().FirstName(),
+		Lastname:  faker.Person().LastName(),
 		Email:     faker.Internet().Email(),
 		Password:  faker.Internet().Password(),
-		AgreeTos:  true,
 	}
 }
 
 func TestRegisterUser(t *testing.T) {
-	p := generateRegisterRequest()
+	e := generateUserEntity()
 
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
@@ -41,14 +39,14 @@ func TestRegisterUser(t *testing.T) {
 		Return(nil)
 
 	authRepo := repository.NewAuthRepo(m)
-	err := authRepo.RegisterUser(p)
+	err := authRepo.RegisterUser(e)
 	if err != nil {
 		t.Fatalf("RegisterUser(valid) = %v, wants no error", err)
 	}
 }
 
 func TestRegisterUserEmailExists(t *testing.T) {
-	p := generateRegisterRequest()
+	e := generateUserEntity()
 
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
@@ -61,7 +59,7 @@ func TestRegisterUserEmailExists(t *testing.T) {
 		Return(&entity.User{}, nil)
 
 	authRepo := repository.NewAuthRepo(m)
-	err := authRepo.RegisterUser(p)
+	err := authRepo.RegisterUser(e)
 	if err != repository.ErrEmailConflict {
 		t.Fatalf("RegisterUser(exists email) = %v, wants %v", err, repository.ErrEmailConflict)
 	}

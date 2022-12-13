@@ -3,6 +3,7 @@ package handler
 import (
 	"context"
 
+	"github.com/djeniusinvfest/inventora/auth/entity"
 	pb "github.com/djeniusinvfest/inventora/auth/proto"
 	"github.com/djeniusinvfest/inventora/auth/repository"
 	"github.com/djeniusinvfest/inventora/auth/validator"
@@ -17,7 +18,15 @@ func (h *Handler) Register(ctx context.Context, in *pb.RegisterRequest) (*pb.Reg
 		}, nil
 	}
 
-	err = h.authRepo.RegisterUser(in)
+	user := entity.User{
+		Firstname: in.FirstName,
+		Lastname:  in.LastName,
+		Email:     in.Email,
+		Password:  in.Password,
+	}
+
+	err = h.authRepo.RegisterUser(&user)
+
 	if err != nil {
 		if err == repository.ErrEmailConflict {
 			return &pb.RegisterResponse{

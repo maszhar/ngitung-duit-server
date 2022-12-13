@@ -5,12 +5,12 @@ import (
 
 	"github.com/djeniusinvfest/inventora/auth/entity"
 	"github.com/djeniusinvfest/inventora/auth/model"
-	pb "github.com/djeniusinvfest/inventora/auth/proto"
+	"github.com/djeniusinvfest/inventora/auth/util"
 	"go.mongodb.org/mongo-driver/bson"
 )
 
 type AuthRepository interface {
-	RegisterUser(p *pb.RegisterRequest) error
+	RegisterUser(e *entity.User) error
 }
 
 type authRepository struct {
@@ -19,9 +19,9 @@ type authRepository struct {
 
 var ErrEmailConflict = errors.New(("auth repo: email is used by another user"))
 
-func (r *authRepository) RegisterUser(p *pb.RegisterRequest) error {
+func (r *authRepository) RegisterUser(user *entity.User) error {
 
-	foundEmail, err := r.FindUserByEmail(p.Email)
+	foundEmail, err := r.FindUserByEmail(user.Email)
 	if err != nil {
 		return err
 	}
@@ -29,13 +29,14 @@ func (r *authRepository) RegisterUser(p *pb.RegisterRequest) error {
 		return ErrEmailConflict
 	}
 
-	user := entity.User{
-		Firstname: p.FirstName,
-		Lastname:  p.LastName,
-		Email:     p.Email,
-		Password:  p.Password,
+	// Hash password
+	digest, err := util.HashString(user.Password)
+	if err != nil {
+		return err
 	}
-	err = r.userModel.Create(&user)
+	user.Password = digest
+
+	err = r.userModel.Create(user)
 
 	return err
 }
