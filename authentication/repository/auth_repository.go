@@ -9,13 +9,17 @@ import (
 	"go.mongodb.org/mongo-driver/bson"
 )
 
-type AuthRepository struct {
+type AuthRepository interface {
+	RegisterUser(p *pb.RegisterRequest) error
+}
+
+type authRepository struct {
 	userModel model.UserModel
 }
 
 var ErrEmailConflict = errors.New(("auth repo: email is used by another user"))
 
-func (r *AuthRepository) RegisterUser(p *pb.RegisterRequest) error {
+func (r *authRepository) RegisterUser(p *pb.RegisterRequest) error {
 
 	foundEmail, err := r.FindUserByEmail(p.Email)
 	if err != nil {
@@ -36,7 +40,7 @@ func (r *AuthRepository) RegisterUser(p *pb.RegisterRequest) error {
 	return err
 }
 
-func (r *AuthRepository) FindUserByEmail(email string) (*entity.User, error) {
+func (r *authRepository) FindUserByEmail(email string) (*entity.User, error) {
 	filter := bson.D{{"email", email}}
 
 	user, err := r.userModel.FindOneWithDeleted(filter)
@@ -47,8 +51,8 @@ func (r *AuthRepository) FindUserByEmail(email string) (*entity.User, error) {
 	return user, nil
 }
 
-func NewAuthRepo(um model.UserModel) *AuthRepository {
-	return &AuthRepository{
+func NewAuthRepo(um model.UserModel) AuthRepository {
+	return &authRepository{
 		userModel: um,
 	}
 }

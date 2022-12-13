@@ -8,10 +8,10 @@ import (
 type Handler struct {
 	pb.UnimplementedAuthenticationServer
 
-	authRepo *repository.AuthRepository
+	authRepo repository.AuthRepository
 }
 
-func NewHandler(authRepo *repository.AuthRepository) *Handler {
+func NewHandler(authRepo repository.AuthRepository) *Handler {
 	h := &Handler{
 		authRepo: authRepo,
 	}
