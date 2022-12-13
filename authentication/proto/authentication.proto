@@ -7,6 +7,7 @@ package proto;
 service Authentication {
     rpc Hello(HelloRequest) returns (HelloResponse) {}
     rpc Register(RegisterRequest) returns (RegisterResponse) {}
+    rpc Login(LoginRequest) returns (LoginResponse) {}
 }
 
 message HelloRequest {
@@ -32,4 +33,23 @@ message RegisterResponse {
 enum Result {
     SUCCESS = 0;
     INVALID_FIELDS = 1;
+}
+
+message LoginRequest {
+    string email = 1;
+    string password = 2;
+}
+
+message LoginResponse {
+    LoginResult result = 1;
+    string message = 2;
+    string accessToken = 3;
+    string refreshToken = 4;
+}
+
+enum LoginResult {
+    LOGIN_SUCCESS = 0;
+    LOGIN_UNVERIFIED = 1;
+    LOGIN_INCORRECT_DATA = 2;
+    LOGIN_INVALID_FIELDS = 4;
 }
