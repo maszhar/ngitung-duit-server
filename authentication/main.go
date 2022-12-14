@@ -40,18 +40,25 @@ func main() {
 	}
 	db := dbClient.Database("auth")
 
+	// Load JWT KEY
+	jwtKey := os.Getenv("JWT_KEY")
+
 	// Init models
 	userModel := model.NewUserModel(db)
 
 	// Init repositories
 	authRepo := repository.NewAuthRepo(userModel)
 
+	// Init handler
+	handler := handler.NewHandler(jwtKey, authRepo)
+
+	// Listen requests
 	listener, err := net.Listen("tcp", fmt.Sprintf("[::]:%s", port))
 	if err != nil {
 		log.Fatalf("failed to listen: %v", err)
 	}
 	server := grpc.NewServer()
-	pb.RegisterAuthenticationServer(server, handler.NewHandler(authRepo))
+	pb.RegisterAuthenticationServer(server, handler)
 
 	log.Printf("server listening at: %s", listener.Addr())
 	if err := server.Serve(listener); err != nil {

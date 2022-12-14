@@ -11,6 +11,7 @@ import (
 
 type AuthRepository interface {
 	RegisterUser(e *entity.User) error
+	Login(email string, password string) (*entity.User, error)
 }
 
 type authRepository struct {
@@ -20,8 +21,9 @@ type authRepository struct {
 var ErrEmailConflict = errors.New(("auth repo: email is used by another user"))
 
 func (r *authRepository) RegisterUser(user *entity.User) error {
-
-	foundEmail, err := r.FindUserByEmail(user.Email)
+	// Check existing email
+	filter := bson.D{{"email", user.Email}}
+	foundEmail, err := r.userModel.FindOne(filter, true)
 	if err != nil {
 		return err
 	}
@@ -41,12 +43,30 @@ func (r *authRepository) RegisterUser(user *entity.User) error {
 	return err
 }
 
-func (r *authRepository) FindUserByEmail(email string) (*entity.User, error) {
-	filter := bson.D{{"email", email}}
+var ErrInvalidCreds = errors.New("invalid credentials")
+var ErrUnverifiedAccount = errors.New("unverified account")
 
-	user, err := r.userModel.FindOneWithDeleted(filter)
+func (r *authRepository) Login(email string, password string) (*entity.User, error) {
+	// fetch user data
+	filter := bson.D{{"email", email}}
+	user, err := r.userModel.FindOne(filter, false)
 	if err != nil {
 		return nil, err
+	}
+
+	// wrong email
+	if user == nil {
+		return nil, ErrInvalidCreds
+	}
+
+	// wrong password
+	if !util.VerifyDigest(password, user.Password) {
+		return nil, ErrInvalidCreds
+	}
+
+	// account unverified
+	if user.ActivatedAt == nil {
+		return nil, ErrUnverifiedAccount
 	}
 
 	return user, nil

@@ -33,7 +33,7 @@ func TestRegisterUser(t *testing.T) {
 		RegisterUser(gomock.Any()).
 		Return(nil)
 
-	handler := handler.NewHandler(m)
+	handler := handler.NewHandler("", m)
 	res, _ := handler.Register(context.Background(), p)
 
 	if res.Result != pb.Result_SUCCESS {
@@ -52,7 +52,7 @@ func TestRegisterUserEmailExists(t *testing.T) {
 		RegisterUser(gomock.Any()).
 		Return(repository.ErrEmailConflict)
 
-	handler := handler.NewHandler(m)
+	handler := handler.NewHandler("", m)
 	res, _ := handler.Register(context.Background(), p)
 
 	if res.Result != pb.Result_INVALID_FIELDS {
@@ -67,7 +67,7 @@ func TestRegisterUserInvalidParams(t *testing.T) {
 	ctrl, m := before(t)
 	defer ctrl.Finish()
 
-	handler := handler.NewHandler(m)
+	handler := handler.NewHandler("", m)
 	res, _ := handler.Register(context.Background(), p)
 
 	if res.Result != pb.Result_INVALID_FIELDS {

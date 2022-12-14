@@ -13,7 +13,7 @@ import (
 
 type UserModel interface {
 	Create(user *entity.User) error
-	FindOneWithDeleted(filter interface{}) (*entity.User, error)
+	FindOne(filter bson.D, withDeleted bool) (*entity.User, error)
 }
 
 type userModel struct {
@@ -41,7 +41,11 @@ func (um *userModel) Create(user *entity.User) error {
 	return nil
 }
 
-func (um *userModel) FindOneWithDeleted(filter interface{}) (*entity.User, error) {
+func (um *userModel) FindOne(filter bson.D, withDeleted bool) (*entity.User, error) {
+	if !withDeleted {
+		filter = append(filter, bson.E{"deleted_at", nil})
+	}
+
 	var result entity.User
 	err := um.coll.FindOne(context.Background(), filter).Decode(&result)
 	if err != nil {

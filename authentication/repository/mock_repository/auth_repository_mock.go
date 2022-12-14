@@ -44,3 +44,16 @@ func (m *MockAuthRepository) RegisterUser(e *entity.User) error {
 func (mr *MockAuthRepositoryMockRecorder) RegisterUser(e interface{}) *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "RegisterUser", reflect.TypeOf((*MockAuthRepository)(nil).RegisterUser), e)
 }
+
+// Login mocks base method
+func (m *MockAuthRepository) Login(email, password string) (*entity.User, error) {
+	ret := m.ctrl.Call(m, "Login", email, password)
+	ret0, _ := ret[0].(*entity.User)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// Login indicates an expected call of Login
+func (mr *MockAuthRepositoryMockRecorder) Login(email, password interface{}) *gomock.Call {
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Login", reflect.TypeOf((*MockAuthRepository)(nil).Login), email, password)
+}
