@@ -5,6 +5,7 @@ import (
 
 	"github.com/djeniusinvfest/inventora/auth/proto"
 	"github.com/djeniusinvfest/inventora/auth/repository"
+	"github.com/djeniusinvfest/inventora/auth/util"
 	"github.com/djeniusinvfest/inventora/auth/validator"
 )
 
@@ -19,7 +20,7 @@ func (h *Handler) Login(ctx context.Context, p *proto.LoginRequest) (*proto.Logi
 	}
 
 	// Login
-	_, err = h.authRepo.Login(p.Email, p.Password)
+	user, err := h.authRepo.Login(p.Email, p.Password)
 	if err != nil {
 		if err == repository.ErrInvalidCreds {
 			return &proto.LoginResponse{
@@ -33,7 +34,14 @@ func (h *Handler) Login(ctx context.Context, p *proto.LoginRequest) (*proto.Logi
 		}
 		return nil, err
 	}
+
+	accessToken, err := util.CreateAccessToken(h.jwtKey, user.Id)
+	if err != nil {
+		return nil, err
+	}
+
 	return &proto.LoginResponse{
-		Result: proto.LoginResult_LOGIN_SUCCESS,
+		Result:      proto.LoginResult_LOGIN_SUCCESS,
+		AccessToken: accessToken,
 	}, nil
 }

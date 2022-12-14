@@ -23,6 +23,7 @@ func generateUserEntity() *entity.User {
 
 var now = time.Now()
 var fakeRegisteredUser = &entity.User{
+	Id:          "639919c5e753aedb94b7205e",
 	Firstname:   "Ali",
 	Lastname:    "Barbara",
 	Email:       "mail@example.com",
